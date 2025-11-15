@@ -1,6 +1,0 @@
-pip install --upgrade pip
-fastapi
-uvicorn
-openai>=1.0.0
-numpy
-
