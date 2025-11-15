@@ -14,6 +14,22 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 EMBED_MODEL = "text-embedding-3-small"
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# Add this section:
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://kiarasaccount.github.io"],  # or ["*"] for dev
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# … your existing code …
+
+
 # Your Q&A data
 qa_pairs = [
     {"question": "What services do you offer?", "answer": "I offer a variety of services..."},
@@ -53,3 +69,4 @@ class Query(BaseModel):
 def ask_question(payload: Query):
     answer = find_best_answer(payload.question)
     return {"answer": answer}
+
