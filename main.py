@@ -3,6 +3,15 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from openai import OpenAI
 import numpy as np
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://kiarasaccount.github.io"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load API key from environment variable
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -69,4 +78,5 @@ class Query(BaseModel):
 def ask_question(payload: Query):
     answer = find_best_answer(payload.question)
     return {"answer": answer}
+
 
