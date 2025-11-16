@@ -5,7 +5,7 @@ from openai import OpenAI
 import os
 
 
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+OpenAI.api_key = os.environ.get("OPENAI_API_KEY")
 
 app = FastAPI()
 
@@ -67,5 +67,6 @@ async def ask_model(question: Question):
 
     except Exception as e:
         return {"answer": f"Error: {str(e)}"}
+
 
 
