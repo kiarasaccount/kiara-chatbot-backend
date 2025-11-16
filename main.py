@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from openai import OpenAI
 import os
 
+print(os.getenv("OPENAI_API_KEY"))
+
 
 OpenAI.api_key = os.environ.get("OPENAI_API_KEY")
 
@@ -67,6 +69,7 @@ async def ask_model(question: Question):
 
     except Exception as e:
         return {"answer": f"Error: {str(e)}"}
+
 
 
 
