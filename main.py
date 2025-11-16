@@ -1,65 +1,67 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-import openai
+from pydantic import BaseModel
+from openai import OpenAI
 import os
 
 app = FastAPI()
 
-# Allow your GitHub Pages site to call the backend
+# Allow your GitHub website
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # You can restrict later
+    allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load OpenAI API key
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Load API key
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class Question(BaseModel):
     question: str
 
-# Your custom FAQ answers
+
+# --- Your custom Q&A knowledge ---
 FAQ = {
     "when is the best time to contact you": 
-        "Monday - Friday between 9-5.",
+        "Monday - Friday between 9–5.",
+    
     "what is the best way to contact you": 
-        "Please contact me via email kiara0441@gmail.com, I would love to set up a call!",
-    "how long has kiara been coding for": 
-        "Kiara has been coding for 4 years now! She would be a great addition to your team!",
+        "Please contact me via email: kiara0441@gmail.com — I’d love to set up a call!",
+    
+    "how long has kiara been coding": 
+        "Kiara has been coding for 4 years now! She would be a great addition to your team!"
 }
 
-def check_faq(user_q: str):
-    q = user_q.lower().strip()
-    for key in FAQ:
+def check_faq(user_question: str):
+    q = user_question.lower()
+
+    for key, value in FAQ.items():
         if key in q:
-            return FAQ[key]
+            return value
     return None
 
 
 @app.post("/ask")
-async def ask(question: Question):
-    user_q = question.question
+async def ask_model(question: Question):
 
-    # 1️⃣ Check if it's a known FAQ question
-    faq_answer = check_faq(user_q)
+    # 1. Check your custom FAQ first
+    faq_answer = check_faq(question.question)
     if faq_answer:
         return {"answer": faq_answer}
 
-    # 2️⃣ Otherwise, ask OpenAI
+    # 2. Fall back to GPT model for everything else
     try:
-        completion = openai.ChatCompletion.create(
-            model="gpt-4o-mini", 
-            messages=[
-                {"role": "system", "content": "You are Kiara, a friendly helpful assistant on her portfolio website."},
-                {"role": "user", "content": user_q}
-            ]
+        response = client.responses.create(
+            model="gpt-4.1-mini",
+            input=question.question
         )
 
-        ai_answer = completion.choices[0].message["content"]
-        return {"answer": ai_answer}
+        answer = response.output_text
+
+        return {"answer": answer}
 
     except Exception as e:
-        print("Error:", e)
-        return {"answer": "Sorry, something went wrong. Please try again!"}
+        return {"answer": f"Error: {str(e)}"}
+
