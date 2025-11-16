@@ -4,6 +4,9 @@ from pydantic import BaseModel
 from openai import OpenAI
 import os
 
+
+openai.api_key = os.environ.get("OPENAI_API_KEY")
+
 app = FastAPI()
 
 # Allow your GitHub website
@@ -64,4 +67,5 @@ async def ask_model(question: Question):
 
     except Exception as e:
         return {"answer": f"Error: {str(e)}"}
+
 
